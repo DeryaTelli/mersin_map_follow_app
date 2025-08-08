@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_button.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_text_field.dart';
+import 'package:mersin_map_follow_app/view/home_view.dart';
 import '../viewmodel/login_viewmodel.dart';
 
 class LoginView extends StatefulWidget {
@@ -42,6 +43,7 @@ class _LoginViewState extends State<LoginView> {
                 text: 'Giriş Yap',
                 onPressed: () {
                   _viewModel.login();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                 },
               ),
             ],
