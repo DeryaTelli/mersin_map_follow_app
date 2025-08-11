@@ -12,6 +12,7 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://repo.yandex.ru/maven") 
         gradlePluginPortal()
     }
 }
