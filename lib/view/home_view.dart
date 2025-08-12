@@ -1,132 +1,59 @@
-import 'dart:async';
-
+// lib/ui/views/home/home_view.dart
 import 'package:flutter/material.dart';
-import 'package:mersin_map_follow_app/service/map/yandex_map_service.dart';
+import 'package:mersin_map_follow_app/utility/constant/widget/custom_app_drawer.dart';
+import 'package:mersin_map_follow_app/utility/constant/widget/custom_search_bar.dart';
+import 'package:mersin_map_follow_app/viewmodel/home_viewmodel.dart';
+import 'package:provider/provider.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => HomeViewModel()..init(),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage>    with SingleTickerProviderStateMixin {
-  @override
-  void initState() {
-    super.initState();
+class _HomeView extends StatelessWidget {
+  const _HomeView();
 
-    _initPermission().ignore();
-  }
-
-  List<MapObject> mapObject = [];
-  //AppLatLong? currentLocation;
-  AnimationController? _animationController;
-  Animation<double>? _animation;
-  double opacity = 0;
-
-  final mapControllerCompleter = Completer<YandexMapController>();
   @override
   Widget build(BuildContext context) {
-    // addObject(appLatLong: currentLocation ?? const UzbekistanLocation());
+    final vm = context.watch<HomeViewModel>();
+
     return Scaffold(
-        body: Stack(
-      children: [
-        YandexMap(
-          mapObjects: mapObject,
-          onMapTap: (point) {
-            addMark(point: point);
-          },
-          nightModeEnabled: true,
-          onMapCreated: (controller) {
-            mapControllerCompleter.complete(controller);
-          },
-        ),
-        // Positioned(
-        //   left: MediaQuery.of(context).size.width / 2,
-        //    top: MediaQuery.of(context).size.height / 2,
-        //  child: Image.asset("assets/images/mark.png")),
-      ],
-    ));
-  }
+      key: vm.scaffoldKey,
+      // Drawer haritanın üstünde açılır
+      drawerEnableOpenDragGesture: true,
+      drawerScrimColor: Colors.black.withOpacity(.35),
+      drawer: const AppDrawer(),
 
-  Future<void> _initPermission() async {
-    if (!await LocationService().checkPermission()) {
-      await LocationService().requestPermission();
-    }
-    await _fetchCurrentLocation();
-  }
-
-  Future<void> _fetchCurrentLocation() async {
-    AppLatLong location;
-    //buradaki location degisecek
-    const defLocation = TurkiyeMersinLocation();
-    try {
-      location = await LocationService().getCurrentLocation();
-    } catch (_) {
-      location = defLocation;
-    }
-
-    addObject(appLatLong: location);
-    _moveToCurrentLocation(location);
-  }
-
-  Future<void> _moveToCurrentLocation(
-    AppLatLong appLatLong,
-  ) async {
-    //currentLocation = appLatLong;
-    (await mapControllerCompleter.future).moveCamera(
-        animation:
-            const MapAnimation(type: MapAnimationType.smooth, duration: 5),
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: Point(
-              latitude: appLatLong.lat,
-              longitude: appLatLong.long,
-            ),
-            zoom: 15,
+      body: Stack(
+        children: [
+          // Yandex Map
+          YandexMap(
+            mapObjects: vm.mapObjects,
+            nightModeEnabled: true,
+            onMapTap: (p) => vm.addMark(p),
+            onMapCreated: (c) => vm.mapControllerCompleter.complete(c),
           ),
-        ));
-  }
 
-  void addObject({required AppLatLong appLatLong}) {
-    final myLocationMarker = PlacemarkMapObject(
-      opacity: 1,
-      mapId: MapObjectId('currentLocation'),
-      point: Point(latitude: appLatLong.lat, longitude: appLatLong.long),
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-            image: BitmapDescriptor.fromAssetImage('assets/images/mark.png'),
-            scale: 0.1,
-            rotationType: RotationType.noRotation),
+          // Üstte kayan menü + arama
+          Align(
+            alignment: Alignment.topCenter,
+            child: TopSearchBar(
+              onMenuTap: vm.openDrawer,
+              controller: vm.searchController,
+              onChanged: vm.onSearchChanged,
+              onClear: vm.clearSearch,
+            ),
+          ),
+        ],
       ),
     );
-    final currentLocationCircle = CircleMapObject(
-        mapId: MapObjectId('currentLocationCircle'),
-        circle: Circle(
-          center: Point(latitude: appLatLong.lat, longitude: appLatLong.long),
-          radius: 250,
-        ),
-        strokeWidth: 0,
-        fillColor: const Color.fromARGB(255, 8, 10, 142).withOpacity(0.1));
-
-    mapObject.addAll([currentLocationCircle, myLocationMarker]);
-    setState(() {});
-  }
-
-  void addMark({required Point point}) {
-    final secondLocation = PlacemarkMapObject(
-      opacity: 1,
-      mapId: MapObjectId('secondLocation'),
-      point: point,
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-            image: BitmapDescriptor.fromAssetImage('assets/images/mark.png'),
-            scale: 0.1,
-            rotationType: RotationType.noRotation),
-      ),
-    );
-    mapObject.add(secondLocation);
-    setState(() {});
   }
 }
