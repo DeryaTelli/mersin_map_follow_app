@@ -27,4 +27,8 @@ class UserModel {
     role: json['role'] as String,
     serverToken: json['server_token'] as String?,
   );
+
+  
+  bool get isAdmin => role.toLowerCase() == 'admin';
+  bool get isUser  => role.toLowerCase() == 'user';
 }

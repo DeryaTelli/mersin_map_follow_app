@@ -15,7 +15,9 @@ class UserViewModel extends ChangeNotifier {
   UserViewModel(this._repo, this._authRepo);
 
   Future<void> loadMe() async {
-    isLoading = true; error = null; notifyListeners();
+    isLoading = true;
+    error = null;
+    notifyListeners();
 
     // uygulama açılışında kaydedilmiş token'ı header'a set et
     await _authRepo.bootstrapAuth();
@@ -29,6 +31,9 @@ class UserViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  bool get isAdmin => user?.isAdmin ?? false;
+  bool get isUser => user?.isUser ?? false;
 
   String get avatarAsset {
     final g = user?.gender.toLowerCase();

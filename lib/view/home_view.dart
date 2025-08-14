@@ -1,7 +1,7 @@
 // lib/ui/views/home/home_view.dart
 import 'package:flutter/material.dart';
-import 'package:mersin_map_follow_app/utility/constant/widget/custom_app_drawer.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_search_bar.dart';
+import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_drawer.dart';
 import 'package:mersin_map_follow_app/viewmodel/home_viewmodel.dart';
 import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +46,7 @@ class _HomeView extends StatelessWidget {
       // Drawer haritanın üstünde açılır
       drawerEnableOpenDragGesture: true,
       drawerScrimColor: Colors.black.withOpacity(.35),
-      drawer: const AppDrawer(),
+      drawer: const RoleBasedDrawer(),
 
       body: Stack(
         children: [
