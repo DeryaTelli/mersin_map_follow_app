@@ -10,10 +10,8 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    //giris yapan kullaniciya gora avatar ayarlanmasi
-    // final userVM = context.watch<UserViewModel>();
-    //final user = userVM.user;
+    final userVM = context.watch<UserViewModel>();
+    final u = userVM.user;
 
     return SafeArea(
       child: Container(
@@ -43,7 +41,7 @@ class AppDrawer extends StatelessWidget {
                   CircleAvatar(
                     radius: 36,
                     backgroundColor: Colors.white,
-                    backgroundImage: AssetImage('assets/icons/manavatar.png'),
+                    backgroundImage: AssetImage(userVM.avatarAsset),
                   ),
                   const SizedBox(height: 18),
                   Column(
@@ -55,7 +53,9 @@ class AppDrawer extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Kullanıcı\nkullanici@gmail.com',
+                        u != null
+                            ? '${u.firstName} ${u.lastName}\n${u.email}'
+                            : 'Kullanıcı\n-',
                         style: AppTextStyle.nunitoRegular14Purple,
                       ),
                     ],

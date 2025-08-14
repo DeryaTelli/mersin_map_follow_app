@@ -3,12 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_app_drawer.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_search_bar.dart';
 import 'package:mersin_map_follow_app/viewmodel/home_viewmodel.dart';
+import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+    @override
+  void initState() {
+    super.initState();
+    // token zaten login'de set edildiyse bu sadece güvence
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserViewModel>().loadMe();
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(

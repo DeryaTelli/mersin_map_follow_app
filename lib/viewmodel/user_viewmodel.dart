@@ -1,21 +1,39 @@
-import 'package:flutter/foundation.dart';
-import 'package:mersin_map_follow_app/model/user_model.dart';
-
+// lib/viewmodel/user_viewmodel.dart
+import 'package:flutter/material.dart';
+import '../model/user_model.dart';
+import '../repository/user_repository.dart';
+import '../repository/auth_repository.dart';
 
 class UserViewModel extends ChangeNotifier {
-  AppUser? _user;
+  final UserRepository _repo;
+  final AuthRepository _authRepo;
 
-  AppUser? get user => _user;
+  UserModel? user;
+  bool isLoading = false;
+  String? error;
 
-  // Örnek: login sonrasında set edersin
-  void setUser(AppUser u) {
-    _user = u;
-    notifyListeners();
+  UserViewModel(this._repo, this._authRepo);
+
+  Future<void> loadMe() async {
+    isLoading = true; error = null; notifyListeners();
+
+    // uygulama açılışında kaydedilmiş token'ı header'a set et
+    await _authRepo.bootstrapAuth();
+
+    try {
+      user = await _repo.me();
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
-  // Çıkış
-  void logout() {
-    _user = null;
-    notifyListeners();
+  String get avatarAsset {
+    final g = user?.gender.toLowerCase();
+    if (g == 'female') return 'assets/icons/womenavatar.png';
+    if (g == 'male') return 'assets/icons/manavatar.png';
+    return 'assets/icons/manavatar.png';
   }
 }

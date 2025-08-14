@@ -5,6 +5,7 @@ import '../repository/auth_repository.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthRepository _repo;
+  
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 

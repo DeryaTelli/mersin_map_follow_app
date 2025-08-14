@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:mersin_map_follow_app/model/token_response_model.dart';
 
-
 class AuthApi {
   final Dio _dio;
 
@@ -12,6 +11,18 @@ class AuthApi {
           receiveTimeout: const Duration(seconds: 10),
           headers: {'Content-Type': 'application/json'},
         ));
+
+  // <<< EK: Token'ı global header'a koy/sil
+  void setAuthToken(String? token) {
+    if (token == null || token.isEmpty) {
+      _dio.options.headers.remove('Authorization');
+    } else {
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+    }
+  }
+
+  // <<< İsteğe bağlı: diğer API'ler (UserApi) aynı Dio'yu kullansın
+  Dio get client => _dio;
 
   Future<TokenResponse> login({
     required String email,
