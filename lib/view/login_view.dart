@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_button.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_text_field.dart';
 import 'package:mersin_map_follow_app/view/home_view.dart';
+import 'package:provider/provider.dart';
 import '../viewmodel/login_viewmodel.dart';
 
-class LoginView extends StatefulWidget {
+class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
-  @override
-  State<LoginView> createState() => _LoginViewState();
-}
-
-class _LoginViewState extends State<LoginView> {
-  final LoginViewModel _viewModel = LoginViewModel();
+  
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<LoginViewModel>();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -28,12 +25,12 @@ class _LoginViewState extends State<LoginView> {
               const SizedBox(height: 10),
               CustomTextField(
                 hintText: 'Email',
-                controller: _viewModel.emailController,
+                controller: vm.emailController,
               ),
               const SizedBox(height: 20),
               CustomTextField(
                 hintText: 'Şifre',
-                controller: _viewModel.passwordController,
+                controller: vm.passwordController,
                 obscureText: true,
               ),
               const SizedBox(height: 30),
@@ -42,8 +39,19 @@ class _LoginViewState extends State<LoginView> {
                 width: double.infinity,
                 text: 'Giriş Yap',
                 onPressed: () {
-                  _viewModel.login();
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                  if (!vm.isLoading) {
+                    vm.login().then((ok) {
+                      if (ok && context.mounted) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                        );
+                      } else if (vm.error != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(vm.error!)),
+                        );
+                      }
+                    });
+                  }
                 },
               ),
             ],
