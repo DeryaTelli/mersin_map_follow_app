@@ -5,6 +5,7 @@ import 'package:mersin_map_follow_app/repository/user_repository.dart';
 import 'package:mersin_map_follow_app/service/auth_api.dart';
 import 'package:mersin_map_follow_app/service/user_api.dart';
 import 'package:mersin_map_follow_app/utility/constant/color/colors.dart';
+import 'package:mersin_map_follow_app/view/home_view.dart';
 import 'package:mersin_map_follow_app/view/login_view.dart';
 import 'package:mersin_map_follow_app/viewmodel/login_viewmodel.dart';
 import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
@@ -48,6 +49,11 @@ class MyApp extends StatelessWidget {
     });
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/login': (_) => const LoginView(),
+        '/home': (_) => const HomePage(),
+      },
+      initialRoute: '/login',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         scaffoldBackgroundColor: AppColors.background,

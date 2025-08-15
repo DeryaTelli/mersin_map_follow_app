@@ -41,4 +41,10 @@ class UserViewModel extends ChangeNotifier {
     if (g == 'male') return 'assets/icons/manavatar.png';
     return 'assets/icons/manavatar.png';
   }
+
+    Future<void> logout() async {
+    await _authRepo.logout();  // token'ı sil + header'ı temizle
+    user = null;               // profil bilgisini sıfırla
+    notifyListeners();
+  }
 }

@@ -20,7 +20,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       cursorColor: AppColors.primaryColor,
-      style: AppTextStyle.nunitoSemiBold20White40,
+      style: AppTextStyle.nunitoRegular16,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.white60),

@@ -12,14 +12,31 @@ class HomeViewModel extends ChangeNotifier {
 
   List<MapObject> mapObjects = [];
 
+  bool _disposed = false;
+  void _safeNotify() {
+    if (!_disposed) notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    searchController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
+
   Future<void> init() async {
+    if (_disposed) return;
     if (!await LocationService().checkPermission()) {
+      if (_disposed) return;
       await LocationService().requestPermission();
     }
+    if (_disposed) return;
     await _fetchCurrentLocation();
   }
 
   Future<void> _fetchCurrentLocation() async {
+    if (_disposed) return;
     AppLatLong location;
     const defLocation = TurkiyeMersinLocation();
     try {
@@ -27,12 +44,16 @@ class HomeViewModel extends ChangeNotifier {
     } catch (_) {
       location = defLocation;
     }
+    if (_disposed) return;
     addUserObjects(location);
-    moveTo(location);
+    await moveTo(location);
   }
 
   Future<void> moveTo(AppLatLong appLatLong) async {
-    (await mapControllerCompleter.future).moveCamera(
+    if (_disposed) return;
+    final controller = await mapControllerCompleter.future;
+    if (_disposed) return;
+    await controller.moveCamera(
       animation: const MapAnimation(type: MapAnimationType.smooth, duration: 5),
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -44,6 +65,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void addUserObjects(AppLatLong appLatLong) {
+    if (_disposed) return;
     final me = PlacemarkMapObject(
       opacity: 1,
       mapId: const MapObjectId('currentLocation'),
@@ -56,7 +78,6 @@ class HomeViewModel extends ChangeNotifier {
         ),
       ),
     );
-
     final area = CircleMapObject(
       mapId: const MapObjectId('currentLocationCircle'),
       circle: Circle(
@@ -68,10 +89,11 @@ class HomeViewModel extends ChangeNotifier {
     );
 
     mapObjects.addAll([area, me]);
-    notifyListeners();
+    _safeNotify(); // notifyListeners yerine
   }
 
   void addMark(Point point) {
+    if (_disposed) return;
     mapObjects.add(
       PlacemarkMapObject(
         opacity: 1,
@@ -86,17 +108,18 @@ class HomeViewModel extends ChangeNotifier {
         ),
       ),
     );
-    notifyListeners();
+    _safeNotify();
+  }
+
+  void clearSearch() {
+    if (_disposed) return;
+    searchController.clear();
+    onSearchChanged('');
+    _safeNotify();
   }
 
   void onSearchChanged(String q) {
     // TODO: burada arama (workers) filtrelemesini tetikle
-  }
-
-  void clearSearch() {
-    searchController.clear();
-    onSearchChanged('');
-    notifyListeners();
   }
 
   void openDrawer() => scaffoldKey.currentState?.openDrawer();

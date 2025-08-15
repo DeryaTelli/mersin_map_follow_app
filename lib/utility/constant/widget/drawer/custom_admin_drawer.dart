@@ -44,8 +44,14 @@ class AdminDrawer extends StatelessWidget {
             DrawerTile(
               icon: Icons.logout,
               label: 'Çıkış Yap',
-              onTap: () {
-                /* TODO: logout */
+              onTap: () async {
+                await context.read<UserViewModel>().logout();
+                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
               },
             ),
           ],

@@ -18,7 +18,8 @@ class AuthRepository {
 
   Future<String?> getSavedToken() => _storage.read(key: _kTokenKey);
 
-  Future<void> bootstrapAuth() async { // app açılışında çağır
+  Future<void> bootstrapAuth() async {
+    // app açılışında çağır
     final t = await getSavedToken();
     _api.setAuthToken(t);
   }
@@ -26,5 +27,10 @@ class AuthRepository {
   Future<void> clearToken() async {
     await _storage.delete(key: _kTokenKey);
     _api.setAuthToken(null);
+  }
+
+  Future<void> logout() async {
+    await clearToken(); // secure storage'tan siler
+    // _api.setAuthToken(null) clearToken içinde zaten çağrılıyorsa tekrar gerekmez
   }
 }

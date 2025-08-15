@@ -11,7 +11,7 @@ class UserDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<UserViewModel>();
-    final u  = vm.user!;
+    final u = vm.user!;
 
     return SafeArea(
       child: Drawer(
@@ -26,9 +26,27 @@ class UserDrawer extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            DrawerTile(icon: Icons.history, label: 'Geçmiş Ziyaretler', onTap: () {/* TODO */}),
+            DrawerTile(
+              icon: Icons.history,
+              label: 'Geçmiş Ziyaretler',
+              onTap: () {
+                /* TODO */
+              },
+            ),
             const Divider(height: 24),
-            DrawerTile(icon: Icons.logout,  label: 'Çıkış Yap',           onTap: () {/* TODO: logout */}),
+            DrawerTile(
+              icon: Icons.logout,
+              label: 'Çıkış Yap',
+              onTap: () async {
+                await context.read<UserViewModel>().logout();
+                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
+              },
+            ),
           ],
         ),
       ),
