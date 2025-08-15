@@ -5,4 +5,7 @@ class UserRepository {
   final UserApi _api;
   UserRepository(this._api);
   Future<UserModel> me() => _api.me();
+
+  Future<List<UserModel>> listUsersByRole(String role) =>
+      _api.listUsers(role: role);
 }

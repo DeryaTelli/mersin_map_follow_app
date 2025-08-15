@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/utility/constant/color/colors.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_header_drawer.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_tile_drawer.dart';
+import 'package:mersin_map_follow_app/view/worker_list_view.dart';
 import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +31,12 @@ class AdminDrawer extends StatelessWidget {
               icon: Icons.groups,
               label: 'Çalışanlar',
               onTap: () {
-                /* TODO */
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UsersListPage(),
+                  ),
+                );
               },
             ),
             DrawerTile(

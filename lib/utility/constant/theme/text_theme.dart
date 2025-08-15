@@ -9,6 +9,13 @@ class AppTextStyle {
     color: Colors.white60,
   );
 
+  static final olegaOne32White = TextStyle(
+    fontFamily: GoogleFonts.orelegaOne().fontFamily,
+    fontSize: 32,
+    color: Colors.white,
+    fontWeight: FontWeight.w400,
+  );
+
   static const TextStyle nunitoExtraBold16White = TextStyle(
     fontFamily: 'Nunito',
     fontWeight: FontWeight.w800,
@@ -37,11 +44,10 @@ class AppTextStyle {
   );
 
   static final TextStyle orelegaOneRegular20Purple = TextStyle(
-    fontFamily: GoogleFonts.palanquinDark().fontFamily,
-    fontSize: 20,
-    fontWeight: FontWeight.w400,
-    letterSpacing: 0,
+    fontFamily: GoogleFonts.orelegaOne().fontFamily,
+    fontSize: 18,
     color: const Color(0xFFEDE0F6),
+    fontWeight: FontWeight.w400,
   );
 
   static const TextStyle nunitoRegular14Purple = TextStyle(
@@ -63,7 +69,7 @@ class AppTextStyle {
   static const TextStyle nunitoSansSemiBold12Black = TextStyle(
     fontFamily: 'Nunito Sans',
     fontWeight: FontWeight.w600,
-    fontSize: 12,
+    fontSize: 16,
     letterSpacing: 1,
     color: Color(0xFF1E2022),
   );
