@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mersin_map_follow_app/repository/auth_repository.dart';
+import 'package:mersin_map_follow_app/repository/tracking_repository.dart';
 import 'package:mersin_map_follow_app/repository/user_repository.dart';
 import 'package:mersin_map_follow_app/service/auth_api.dart';
+import 'package:mersin_map_follow_app/service/dio/dio_setting.dart';
+import 'package:mersin_map_follow_app/service/tracking_api.dart';
 import 'package:mersin_map_follow_app/service/user_api.dart';
 import 'package:mersin_map_follow_app/utility/constant/color/colors.dart';
 import 'package:mersin_map_follow_app/utility/constant/theme/appbar_theme.dart';
@@ -13,13 +16,17 @@ import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  final dio = DioSettings().dio;
   const baseUrl = 'http://10.0.2.2:8000';
+  const baseWs   = 'ws://10.0.2.2:8000';
 
   final authApi = AuthApi(baseUrl: baseUrl);
   final userApi = UserApi(authApi.client);
+  final trackingApi = TrackingApi(authApi.client, wsBase: baseWs);
 
   final authRepo = AuthRepository(authApi, const FlutterSecureStorage());
   final userRepo = UserRepository(userApi);
+  final trackingRepo = TrackingRepository(trackingApi);
 
   runApp(
     MultiProvider(
@@ -27,6 +34,7 @@ void main() {
         // 🔹 Repositories as plain providers
         Provider<AuthRepository>.value(value: authRepo),
         Provider<UserRepository>.value(value: userRepo),
+          Provider<TrackingRepository>.value(value: trackingRepo),
 
         // 🔹 ViewModels
         ChangeNotifierProvider(create: (_) => LoginViewModel(authRepo)),
