@@ -2,14 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
 import 'package:mersin_map_follow_app/utility/constant/widget/custom_search_bar.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_drawer.dart';
 import 'package:mersin_map_follow_app/viewmodel/home_viewmodel.dart';
 import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
-
-// 🔽 Eğer HomeViewModel ctor'unda bu parametreleri bekliyorsa (önerilen):
-// HomeViewModel({required TrackingRepository trackingRepo, required AuthRepository authRepo})
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

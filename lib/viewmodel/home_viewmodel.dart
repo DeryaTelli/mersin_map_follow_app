@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/repository/auth_repository.dart';
 import 'package:mersin_map_follow_app/repository/tracking_repository.dart';
 import 'package:mersin_map_follow_app/service/map/yandex_map_service.dart';
+import 'package:mersin_map_follow_app/utility/constant/theme/text_theme.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -203,46 +204,6 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  // --------- Marker yönetimi ----------
-  void _upsertUserMarker(int userId, String name, double lat, double lon) {
-    debugPrint('_upsertUserMarker: user=$userId name=$name lat=$lat lon=$lon');
-    final id = MapObjectId('u_$userId');
-
-    PlacemarkText? text;
-    if (name.isNotEmpty) {
-      text = PlacemarkText(text: name, style: const PlacemarkTextStyle());
-    }
-
-    final marker = PlacemarkMapObject(
-      mapId: id,
-      point: Point(latitude: lat, longitude: lon),
-      opacity: 1,
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
-          image: BitmapDescriptor.fromAssetImage(
-            'assets/images/worker_pin.png',
-          ),
-          scale: 0.1,
-          rotationType: RotationType.noRotation,
-        ),
-      ),
-      text: text,
-    );
-
-    final idx = mapObjects.indexWhere((e) => e.mapId == id);
-    if (idx >= 0) {
-      final next = List<MapObject>.from(mapObjects);
-      next[idx] = marker;
-      mapObjects = next;
-      debugPrint('_upsertUserMarker: mevcut marker güncellendi (user=$userId)');
-    } else {
-      mapObjects = List<MapObject>.from(mapObjects)..add(marker);
-      debugPrint('_upsertUserMarker: yeni marker eklendi (user=$userId)');
-    }
-
-    userMarkers[userId] = marker;
-  }
-
   // --------- Init & konum alma ----------
   Future<void> init() async {
     debugPrint('init() çağrıldı');
@@ -260,7 +221,7 @@ class HomeViewModel extends ChangeNotifier {
     debugPrint('_fetchCurrentLocation() çağrıldı');
     if (_disposed) return;
     AppLatLong location;
-    const defLocation = TurkiyeMersinLocation();
+    const defLocation = TurkiyeMersinLocation(); // turkiye konumu
     try {
       location = await LocationService().getCurrentLocation();
       debugPrint(
@@ -306,24 +267,13 @@ class HomeViewModel extends ChangeNotifier {
       point: Point(latitude: appLatLong.lat, longitude: appLatLong.long),
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
-          image: BitmapDescriptor.fromAssetImage('assets/images/mark.png'),
+          image: BitmapDescriptor.fromAssetImage('assets/icons/mark.png'),
           scale: 0.1,
           rotationType: RotationType.noRotation,
         ),
       ),
     );
-
-    final area = CircleMapObject(
-      mapId: const MapObjectId('currentLocationCircle'),
-      circle: Circle(
-        center: Point(latitude: appLatLong.lat, longitude: appLatLong.long),
-        radius: 250,
-      ),
-      strokeWidth: 0,
-      fillColor: const Color(0xFF080A8E).withOpacity(.10),
-    );
-
-    mapObjects = List<MapObject>.from(mapObjects)..addAll([area, me]);
+    mapObjects = List<MapObject>.from(mapObjects)..addAll([me]);
     debugPrint('addUserObjects: kendi marker ve alan eklendi');
     _safeNotify();
   }
@@ -337,7 +287,7 @@ class HomeViewModel extends ChangeNotifier {
       point: point,
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
-          image: BitmapDescriptor.fromAssetImage('assets/images/mark.png'),
+          image: BitmapDescriptor.fromAssetImage('assets/icons/mark.png'),
           scale: 0.1,
           rotationType: RotationType.noRotation,
         ),
@@ -346,6 +296,50 @@ class HomeViewModel extends ChangeNotifier {
     mapObjects = List<MapObject>.from(mapObjects)..add(marker);
     debugPrint('addMark: yeni marker eklendi');
     _safeNotify();
+  }
+
+
+  // --------- Marker yönetimi ----------
+  void _upsertUserMarker(int userId, String name, double lat, double lon) {
+    debugPrint('_upsertUserMarker: user=$userId name=$name lat=$lat lon=$lon');
+    final id = MapObjectId('u_$userId');
+
+    PlacemarkText? text;
+    if (name.isNotEmpty) {
+      text = PlacemarkText(
+        text: name,
+        style: PlacemarkTextStyle(
+          color: Colors.white,
+        ),
+      );
+    }
+
+    final marker = PlacemarkMapObject(
+      mapId: id,
+      point: Point(latitude: lat, longitude: lon),
+      opacity: 1,
+      icon: PlacemarkIcon.single(
+        PlacemarkIconStyle(
+          image: BitmapDescriptor.fromAssetImage('assets/icons/mark.png'),
+          scale: 0.5,
+          rotationType: RotationType.noRotation,
+        ),
+      ),
+      text: text,
+    );
+
+    final idx = mapObjects.indexWhere((e) => e.mapId == id);
+    if (idx >= 0) {
+      final next = List<MapObject>.from(mapObjects);
+      next[idx] = marker;
+      mapObjects = next;
+      debugPrint('_upsertUserMarker: mevcut marker güncellendi (user=$userId)');
+    } else {
+      mapObjects = List<MapObject>.from(mapObjects)..add(marker);
+      debugPrint('_upsertUserMarker: yeni marker eklendi (user=$userId)');
+    }
+
+    userMarkers[userId] = marker;
   }
 
   // --------- UI helpers ----------
