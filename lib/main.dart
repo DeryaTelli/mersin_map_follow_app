@@ -17,8 +17,8 @@ import 'package:provider/provider.dart';
 
 void main() {
   final dio = DioSettings().dio;
-  const baseUrl = 'http://10.0.2.2:8000';
-  const baseWs   = 'ws://10.0.2.2:8000';
+  const baseUrl = 'http://13.62.100.77';
+  const baseWs = 'ws://13.62.100.77';
 
   final authApi = AuthApi(baseUrl: baseUrl);
   final userApi = UserApi(authApi.client);
@@ -34,7 +34,7 @@ void main() {
         // 🔹 Repositories as plain providers
         Provider<AuthRepository>.value(value: authRepo),
         Provider<UserRepository>.value(value: userRepo),
-          Provider<TrackingRepository>.value(value: trackingRepo),
+        Provider<TrackingRepository>.value(value: trackingRepo),
 
         // 🔹 ViewModels
         ChangeNotifierProvider(create: (_) => LoginViewModel(authRepo)),
