@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/repository/auth_repository.dart';
 import 'package:mersin_map_follow_app/repository/tracking_repository.dart';
+import 'package:mersin_map_follow_app/service/geolocator.dart';
 import 'package:mersin_map_follow_app/service/map/yandex_map_service.dart';
 import 'package:mersin_map_follow_app/utility/constant/theme/text_theme.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
@@ -47,56 +48,54 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   // --------- USER: cihaz konumu gönderimi (foreground tracking) ----------
-  Future<void> startUserTracking() async {
-    debugPrint('startUserTracking() başlatıldı');
-    final token = await authRepo.getSavedToken();
+Future<void> startUserTracking() async {
+  debugPrint('startUserTracking() başlatıldı');
 
-    if (token == null) {
-      debugPrint('❌ Token bulunamadı, tracking başlatılamıyor');
-      return;
-    }
-
-    debugPrint('📡 Token bulundu: $token');
-    debugPrint('🌐 WebSocket bağlantısı kuruluyor (user/foreground)...');
-
-    final stream = await trackingRepo.startForegroundTracking(token);
-
-    // Eğer daha önce subscription varsa iptal et
-    await _posSub?.cancel();
-    bool firstFixMoved = false;
-
-    _posSub = stream.listen(
-      (pos) async {
-        final here = AppLatLong(lat: pos.latitude, long: pos.longitude);
-
-        // Konum logları
-        debugPrint(
-          '📍 Yeni konum alındı -> lat=${pos.latitude}, lon=${pos.longitude}',
-        );
-
-        // Sunucuya gönderilen event logu
-        debugPrint(
-          '📤 [WS SEND] -> {"event":"loc","lat":${pos.latitude},"lon":${pos.longitude},"ts":${DateTime.now().millisecondsSinceEpoch}}',
-        );
-
-        // Simüle: Server'dan ack cevabı
-        debugPrint(
-          '📥 [WS RESPONSE] -> {"event":"ack","msg":"location received","lat":${pos.latitude},"lon":${pos.longitude}}',
-        );
-
-        if (!firstFixMoved) {
-          await moveTo(here);
-          firstFixMoved = true;
-        }
-      },
-      onError: (e, st) {
-        debugPrint('❌ WebSocket hata: $e\n$st');
-      },
-      onDone: () {
-        debugPrint('✅ WebSocket bağlantısı kapandı');
-      },
-    );
+  // 🔒 İzin & servis kontrolü
+  final ok = await ensureLocationReady(scaffoldKey.currentContext!);
+  if (!ok) {
+    debugPrint('🔒 Konum izni/servisi hazır değil. Tracking başlamadı.');
+    return;
   }
+
+  final token = await authRepo.getSavedToken();
+  if (token == null) {
+    debugPrint('❌ Token bulunamadı, tracking başlatılamıyor');
+    return;
+  }
+
+  debugPrint('📡 Token bulundu: $token');
+  debugPrint('🌐 WebSocket bağlantısı kuruluyor (user/foreground)...');
+
+  final stream = await trackingRepo.startForegroundTracking(token);
+
+  await _posSub?.cancel();
+  bool firstFixMoved = false;
+
+  _posSub = stream.listen(
+    (pos) async {
+      final here = AppLatLong(lat: pos.latitude, long: pos.longitude);
+
+      debugPrint('📍 Yeni konum -> lat=${pos.latitude}, lon=${pos.longitude}');
+
+      // ✅ GERÇEK GÖNDERİM
+      trackingRepo.sendLivePosition(pos.latitude, pos.longitude);
+
+      if (!firstFixMoved) {
+        await moveTo(here);
+        firstFixMoved = true;
+      }
+    },
+    onError: (e, st) {
+      // 🛠 Bu WS hatası değil, konum stream hatası
+      debugPrint('❌ Location stream error: $e\n$st');
+    },
+    onDone: () {
+      debugPrint('ℹ️ Location stream kapandı');
+    },
+  );
+}
+
 
   Future<void> stopUserTracking() async {
     debugPrint('stopUserTracking() çağrıldı');
@@ -298,7 +297,6 @@ class HomeViewModel extends ChangeNotifier {
     _safeNotify();
   }
 
-
   // --------- Marker yönetimi ----------
   void _upsertUserMarker(int userId, String name, double lat, double lon) {
     debugPrint('_upsertUserMarker: user=$userId name=$name lat=$lat lon=$lon');
@@ -308,9 +306,7 @@ class HomeViewModel extends ChangeNotifier {
     if (name.isNotEmpty) {
       text = PlacemarkText(
         text: name,
-        style: PlacemarkTextStyle(
-          color: Colors.white,
-        ),
+        style: PlacemarkTextStyle(color: Colors.white),
       );
     }
 

@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as _dio;
+import 'package:mersin_map_follow_app/model/work_day_location_model.dart';
 import 'package:web_socket_channel/io.dart';
 import '../service/tracking_api.dart';
 import 'package:web_socket_channel/status.dart' as ws_status;
+
 class TrackingRepository {
   final TrackingApi _api;
   TrackingRepository(this._api);
@@ -28,6 +31,11 @@ class TrackingRepository {
 
   // Admin tarafı
   Future<List<Map<String, dynamic>>> adminLast() => _api.adminLast();
-  Stream<Map<String, dynamic>> adminLive(String jwt) => _api.connectAdminWS(jwt);
+  Stream<Map<String, dynamic>> adminLive(String jwt) =>
+      _api.connectAdminWS(jwt);
   Future<void> closeAdminLive() => _api.closeAdminWS();
+  Future<List<LocationPoint>> myDay(String jwt, DateTime day) async {
+    final raw = await _api.myDayRaw(jwt: jwt, day: day);
+    return raw.map((e) => LocationPoint.fromJson(e)).toList();
+  }
 }

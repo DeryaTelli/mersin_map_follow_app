@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mersin_map_follow_app/utility/constant/color/colors.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_header_drawer.dart';
 import 'package:mersin_map_follow_app/utility/constant/widget/drawer/custom_tile_drawer.dart';
+import 'package:mersin_map_follow_app/view/worker_past_location_view.dart';
 import 'package:mersin_map_follow_app/viewmodel/user_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +31,8 @@ class UserDrawer extends StatelessWidget {
               icon: Icons.history,
               label: 'Geçmiş Ziyaretler',
               onTap: () {
-                /* TODO */
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MyDayPage()));
+
               },
             ),
             const Divider(height: 24),
